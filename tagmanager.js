@@ -38,7 +38,8 @@
         tagCloseIcon: 'x',
         tagClass: '',
         validator: null,
-        onlyTagList: false
+        onlyTagList: false,
+        tagList: null,
     },
 
     publicMethods = {
@@ -50,6 +51,35 @@
             tag = privateMethods.trimTag(tag, opts.delimiterChars);
 
             if (!tag || tag.length <= 0) { return; }
+            
+            // check if restricted only to the suggestions
+            if(opts.onlyTagList){
+            	
+            	if(!opts.tagList){
+            		
+					if($self.data().ttView){
+						$self.data('opts').tagList = Array();
+						
+						var key = 0;
+						
+						$.each($self.data().ttView.datasets[0].itemHash, function(i, item) {
+							$self.data('opts').tagList[key] = item.value.toLowerCase();
+							key++;
+						});
+						opts = $self.data('opts');
+					}
+					
+				}
+				
+				//if the list has been updated we look the tag in the tag list. if not found return
+				if(opts.tagList){
+					var suggestion = $.inArray(tag.toLowerCase(), opts.tagList);
+					if (-1 === suggestion) {
+						//console.log("tag:" + tag + " not in tagList, not adding it");
+						return;
+					}	
+				}	
+			}
 
             if (opts.CapitalizeFirstLetter && tag.length > 1) {
                 tag = tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase();
